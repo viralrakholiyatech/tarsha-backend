@@ -4,9 +4,7 @@ const { AsyncLocalStorage } = require("async_hooks");
 const tenantStorage = new AsyncLocalStorage();
 
 const baseDbConfig = {
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PASSWORD,
+  ...require('../config/runtime').dbConnection,
   multipleStatements: true,
   dateStrings: true,
   timezone: "+05:30",

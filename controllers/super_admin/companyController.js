@@ -5,9 +5,7 @@ const bcrypt = require("bcryptjs");
 const { masterDbConfig } = require("./authController");
 
 const dbServerConfig = {
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PASSWORD,
+  ...require('../../config/runtime').dbConnection,
   dateStrings: true,
 };
 

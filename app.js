@@ -26,12 +26,15 @@ const date = require("date-and-time");
 moment = module.exports = require("moment");
 
 const cors = require("cors");
-const serviceAccount = JSON.parse(fs.readFileSync('./serviceAccountKey.json', 'utf8'));
-
+const credentialFile = process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+  (fs.existsSync('/etc/secrets/serviceAccountKey.json') ? '/etc/secrets/serviceAccountKey.json' : path.join(__dirname, 'serviceAccountKey.json'));
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
+  : (fs.existsSync(credentialFile) ? JSON.parse(fs.readFileSync(credentialFile, 'utf8')) : null);
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://zaid-3a861-default-rtdb.firebaseio.com", // ✅ Correct region
+    credential: serviceAccount ? admin.credential.cert(serviceAccount) : admin.credential.applicationDefault(),
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://zaid-3a861-default-rtdb.firebaseio.com',
   });
 }
 
@@ -47,10 +50,9 @@ const { isDateInBetween } = require("./services/Utility");
 messageClass = module.exports = JSON.parse(
   fs.readFileSync("./config/message.json")
 );
-databaseConfig = module.exports = JSON.parse(
-  fs.readFileSync("./config/db.json")
-);
-meta = module.exports = JSON.parse(fs.readFileSync("./config/config.json"));
+const runtimeConfig = require('./config/runtime');
+databaseConfig = module.exports = runtimeConfig.databaseConfig;
+meta = module.exports = runtimeConfig.meta;
 mail = module.exports = JSON.parse(fs.readFileSync("./config/mail.json"));
 /*
  * Mail configration
@@ -135,6 +137,10 @@ app.use(expressValidator());
 // Multi-tenant database context middleware
 const { tenantMiddleware } = require("./middleware/tenantMiddleware");
 const { dbProxy, defaultPool } = require("./services/tenantDbManager");
+app.get('/healthz', (req, res) => res.status(200).json({ status: 'ok' }));
+app.get('/readyz', (req, res) => {
+  defaultPool.query('SELECT 1', (err) => res.status(err ? 503 : 200).json({ status: err ? 'database_unavailable' : 'ready' }));
+});
 app.use(tenantMiddleware);
 
 app.use("/api", apiRouter);
@@ -167,6 +173,7 @@ All_Image_Allow = module.exports = [
 /*
  * Connecting to database with Multi-Tenant Proxy
  */
+db = module.exports = dbProxy;
 defaultPool.getConnection((err, connection) => {
   if (err) {
     console.error("Error connecting to database:", err);
@@ -174,7 +181,7 @@ defaultPool.getConnection((err, connection) => {
     connection.release();
     db = module.exports = dbProxy; // Multi-tenant dynamic proxy
     console.log("[DATABASE] Multi-tenant dynamic database proxy active");
-    require("./services/start_server.js");
+
   }
 });
 
@@ -183,3 +190,5 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
+
+require("./services/start_server.js");

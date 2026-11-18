@@ -4,10 +4,8 @@ const jwt = require("jsonwebtoken");
 const { jwtInfo } = require("../../helpers/constants");
 
 const masterDbConfig = {
-  host: "localhost",
-  user: "root",
-  password: process.env.DB_PASSWORD,
-  database: "master_admin",
+  ...require('../../config/runtime').dbConnection,
+  database: process.env.MASTER_DB_NAME || "master_admin",
   dateStrings: true,
 };
 
