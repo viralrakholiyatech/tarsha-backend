@@ -1,0 +1,12 @@
+{
+    "NO_REPLY_MAIL": "",
+    "HOST": "smtp.gmail.com",
+    "SECURE_CONNECTION": true,
+    "PORT": 465,
+    "REQUIRES_AUTH": true,
+    "DOMAINS": [ "gmail.com", "googlemail.com" ],
+    "USERNAME": "",
+    "PASSWORD": "",
+    "service" : "",
+    "FROM":""
+}

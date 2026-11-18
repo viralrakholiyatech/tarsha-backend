@@ -1,0 +1,73 @@
+const mysql = require("mysql2");
+const { AsyncLocalStorage } = require("async_hooks");
+
+const tenantStorage = new AsyncLocalStorage();
+
+const baseDbConfig = {
+  host: "localhost",
+  user: "root",
+  password: process.env.DB_PASSWORD,
+  multipleStatements: true,
+  dateStrings: true,
+  timezone: "+05:30",
+  typeCast: function (field, next) {
+    if (field.type === "DATE" || field.type === "NEWDATE") {
+      const val = field.string();
+      return val === null ? null : val;
+    }
+    if (field.type === "DATETIME" || field.type === "TIMESTAMP") {
+      const val = field.string();
+      return val ? val.replace(" ", "T") : null;
+    }
+    return next();
+  },
+};
+
+// Cached pools per tenant database
+const pools = {};
+
+const getTenantPool = (dbName = "tarsha") => {
+  const targetDb = (dbName || "tarsha").trim();
+  if (pools[targetDb]) {
+    return pools[targetDb];
+  }
+
+  const pool = mysql.createPool({
+    ...baseDbConfig,
+    database: targetDb,
+    waitForConnections: true,
+    connectionLimit: 15,
+    queueLimit: 0,
+  });
+
+  pools[targetDb] = pool;
+  console.log(`[TENANT DB] Initialized connection pool for database: ${targetDb}`);
+  return pool;
+};
+
+// Initialize default pool
+const defaultPool = getTenantPool("tarsha");
+
+// Dynamic Proxy for global db
+const dbProxy = new Proxy(defaultPool, {
+  get(target, prop) {
+    const store = tenantStorage.getStore();
+    const activeDb = store && store.dbName ? store.dbName : "tarsha";
+    const activePool = getTenantPool(activeDb);
+
+    const val = activePool[prop];
+    if (typeof val === "function") {
+      return function (...args) {
+        return val.apply(activePool, args);
+      };
+    }
+    return val;
+  },
+});
+
+module.exports = {
+  tenantStorage,
+  getTenantPool,
+  dbProxy,
+  defaultPool,
+};

@@ -1,0 +1,16 @@
+DirectoryIndex disabled
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://www.%{HTTP_HOST}%{REQUEST_URI} [R,L]
+Header always set Content-Security-Policy "upgrade-insecure-requests;"
+RewriteRule ^$ http://webapp.zaidexceldesign.com:7600/ [P,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ http://webapp.zaidexceldesign.com:7600/$1 [P,L]
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php71” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php71 .php .php7 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit

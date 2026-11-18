@@ -1,0 +1,9 @@
+{
+  "BASE_URL": "",
+  "AUTH_KEY": "replace_with_your_auth_key",
+  "NAME": "API",
+  "SERVER_LOG": true,
+  "session_key": "replace_with_your_session_key",
+  "thekey": "replace_with_your_thekey",
+  "perPage": 10
+}
