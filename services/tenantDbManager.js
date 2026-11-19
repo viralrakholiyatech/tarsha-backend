@@ -2,6 +2,7 @@ const mysql = require("mysql2");
 const { AsyncLocalStorage } = require("async_hooks");
 
 const tenantStorage = new AsyncLocalStorage();
+const { defaultDbName } = require("../config/runtime");
 
 const baseDbConfig = {
   ...require('../config/runtime').dbConnection,
@@ -24,8 +25,8 @@ const baseDbConfig = {
 // Cached pools per tenant database
 const pools = {};
 
-const getTenantPool = (dbName = "tarsha") => {
-  const targetDb = (dbName || "tarsha").trim();
+const getTenantPool = (dbName = defaultDbName) => {
+  const targetDb = (dbName || defaultDbName).trim();
   if (pools[targetDb]) {
     return pools[targetDb];
   }
@@ -44,13 +45,13 @@ const getTenantPool = (dbName = "tarsha") => {
 };
 
 // Initialize default pool
-const defaultPool = getTenantPool("tarsha");
+const defaultPool = getTenantPool(defaultDbName);
 
 // Dynamic Proxy for global db
 const dbProxy = new Proxy(defaultPool, {
   get(target, prop) {
     const store = tenantStorage.getStore();
-    const activeDb = store && store.dbName ? store.dbName : "tarsha";
+    const activeDb = store && store.dbName ? store.dbName : defaultDbName;
     const activePool = getTenantPool(activeDb);
 
     const val = activePool[prop];

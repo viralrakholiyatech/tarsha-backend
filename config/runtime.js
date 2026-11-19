@@ -21,6 +21,7 @@ module.exports = {
     thekey: process.env.ENCRYPTION_KEY || local.thekey,
   },
   databaseConfig: readLocal("db.json"),
+  defaultDbName: process.env.DB_NAME || "tarsha",
   dbConnection: {
     host: process.env.DB_HOST || "localhost",
     port: Number(process.env.DB_PORT || 3306),

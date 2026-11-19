@@ -19,3 +19,7 @@ Set `AUTH_KEY` and `ENCRYPTION_KEY` to the values used by your existing applicat
 For Firebase notifications, add a Render secret file named `serviceAccountKey.json`, or set `FIREBASE_SERVICE_ACCOUNT_JSON` to the service-account JSON. The app also supports `GOOGLE_APPLICATION_CREDENTIALS`. Missing Firebase credentials no longer prevent HTTP startup, but notifications require valid credentials. Configure the AWS and SMTP variables from `.env.example` for file uploads and email. Private local JSON config files are optional on Render.
 
 `/healthz` checks that HTTP is running. `/readyz` returns 200 when MySQL is reachable and 503 when it is unavailable; a successful HTTP deployment alone does not mean database-backed features are ready.
+
+### cPanel database names
+
+Set `DB_NAME` to the full tenant database name (for example `account_tarsha`) and `MASTER_DB_NAME` to the full master database name (for example `account_master_admin`). Set `DB_USER` to the full database username and `DB_HOST` to the remote MySQL hostname provided by your host. `0.0.0.0` is a listening address, not a remote database destination. Set the password only in Render environment variables or the ignored local `.env`. Company records in the master database must reference the actual hosted tenant names in their `db_name` column.

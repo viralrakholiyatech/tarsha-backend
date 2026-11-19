@@ -1,3 +1,4 @@
+const { defaultDbName } = require("../config/runtime");
 const jwt = require("jsonwebtoken");
 const { tenantStorage, getTenantPool } = require("../services/tenantDbManager");
 const mysql = require("mysql2/promise");
@@ -70,7 +71,7 @@ const tenantMiddleware = async (req, res, next) => {
 
   // Default fallback
   if (!dbName) {
-    dbName = "tarsha";
+    dbName = defaultDbName;
   }
 
   // Pre-warm the pool for this tenant
