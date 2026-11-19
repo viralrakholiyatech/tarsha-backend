@@ -23,3 +23,6 @@ For Firebase notifications, add a Render secret file named `serviceAccountKey.js
 ### cPanel database names
 
 Set `DB_NAME` to the full tenant database name (for example `account_tarsha`) and `MASTER_DB_NAME` to the full master database name (for example `account_master_admin`). Set `DB_USER` to the full database username and `DB_HOST` to the remote MySQL hostname provided by your host. `0.0.0.0` is a listening address, not a remote database destination. Set the password only in Render environment variables or the ignored local `.env`. Company records in the master database must reference the actual hosted tenant names in their `db_name` column.
+
+Run npm run db:check to validate the hosted database settings, test both database connections, and check that the master database contains super_admins. The command prints error codes and guidance without credentials. Run it from Render when possible to test Render's network access.
+
