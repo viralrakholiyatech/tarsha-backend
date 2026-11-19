@@ -100,18 +100,7 @@ module.exports = error_logs_directories = {
 };
 
 app = module.exports = express();
-const corsOptions = {
-  origin: "*",
-  credentials: true, //access-control-allow-credentials:true
-};
-app.use(cors(corsOptions));
-
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  next();
-});
+app.use(cors(require("./config/cors")));
 
 // Enable CORS for all routes
 app.use("/uploads", express.static("uploads"));

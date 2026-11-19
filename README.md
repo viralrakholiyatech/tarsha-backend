@@ -26,3 +26,5 @@ Set `DB_NAME` to the full tenant database name (for example `account_tarsha`) an
 
 Run npm run db:check to validate the hosted database settings, test both database connections, and check that the master database contains super_admins. The command prints error codes and guidance without credentials. Run it from Render when possible to test Render's network access.
 
+
+Browser CORS uses an explicit frontend origin list with credentials support. Set `CORS_ORIGINS` to a comma-separated list to override the defaults in `config/cors.js`. This setting controls browser access; it does not fix MySQL network timeouts.
